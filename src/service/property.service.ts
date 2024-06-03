@@ -36,3 +36,41 @@ export const createNewProperty = async (
     }
   }
 };
+
+export const queryProperties = async <Key extends keyof Property>(
+  filter: object,
+  options: {
+    search?: string;
+    limit?: number;
+    page?: number;
+    sortBy?: string;
+    sortOrder?: string;
+  },
+  keys: Key[] = [
+    "id",
+    "bathroom",
+    "bedroom",
+    "buildingArea",
+    "description",
+    "floor",
+    "landArea",
+    "location",
+    "propertyImage",
+    "propertyName",
+    "year",
+  ] as Key[]
+): Promise<Pick<Property, Key>[]> => {
+  const page = options.page ?? 1;
+  const limit = options.limit ?? 10;
+  const sortBy = options.sortBy;
+  const sortOrder = options.sortOrder ?? "desc";
+
+  const props = await prisma.property.findMany({
+    where: filter,
+    select: keys.reduce((obj, k) => ({ ...obj, [k]: true }), {}),
+    take: limit,
+    skip: (page - 1) * limit,
+    orderBy: sortBy ? { [sortBy]: sortOrder } : undefined,
+  });
+  return props as Pick<Property, Key>[];
+};

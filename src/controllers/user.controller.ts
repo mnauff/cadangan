@@ -8,26 +8,15 @@ export async function queryAllUsers(
   req: express.Request,
   res: express.Response
 ) {
-  const page = parseInt(req.query.limit as string, 10) || 1;
-  const limit =
-    parseInt(req.query.limit as string, 10) *
-      parseInt(req.query.page as string, 10) || 10;
-  const keys = ["id", "email", "name", "password", "created_at", "updated_at"];
+  const limit = parseInt(req.query.limit as string) ?? 10;
+  const page = parseInt(req.query.page as string) ?? 1;
 
-  const sortBy = req.query.sortBy as string | undefined;
-  const sortOrder = req.query.sortOrder as string | undefined;
+  const sortBy = req.query.sort_by as string | undefined;
+  const sortOrder = (req.query.sort_order as string) ?? "desc";
 
-  const user = await prisma.user.findMany({
-    where: pick(req.query, ["name"]),
-    select: keys.reduce((obj, k) => ({ ...obj, [k]: true }), {}),
-    take: page * limit,
-    skip: limit,
-    orderBy: sortBy
-      ? {
-          [sortBy]: sortOrder?.toUpperCase() === "desc" ? "desc" : "asc",
-        }
-      : undefined,
-  });
+  const options = { limit, page, sortBy, sortOrder };
+
+  const user = await queryUsers(pick(req.query, ["name", "email"]), options);
   return res
     .status(200)
     .json(successResponse("User retrieved successfully", user));
