@@ -44,8 +44,8 @@ model Favorite {
 }
 
 model Property {
-  id            String @id @default(uuid())
-  propertyImage String
+  id            String   @id @default(uuid())
+  propertyImage String[]
   propertyName  String
   location      String
   description   String

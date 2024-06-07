@@ -6,6 +6,7 @@ import { authorizationUrl } from "./util/oauth";
 import router from "./routes";
 import { googleOauth } from "./controllers/auth/google.controller";
 import session from "express-session";
+import swaggerDocs from "./util/swagger";
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -36,6 +37,9 @@ app.get("/auth/google", (req, res) => {
   res.redirect(authorizationUrl);
 });
 app.get("/auth/google/callback", googleOauth);
+
+// Setup Swagger
+swaggerDocs(app);
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
